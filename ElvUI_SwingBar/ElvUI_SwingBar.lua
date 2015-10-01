@@ -25,19 +25,19 @@ local function getOptions()
 				name = L["Enable"],
 			},
 			width = {
-				order = 5,
+				order = 2,
 				name = L["Width"],
 				type = "range",
 				min = 50, max = 600, step = 1,
 			},
 			height = {
-				order = 6,
+				order = 3,
 				name = L["Height"],
 				type = "range",
 				min = 10, max = 85, step = 1
 			},
 			color = {
-				order = 1,
+				order = 4,
 				name = L["Color"],
 				type = "color",
 				get = function(info)
