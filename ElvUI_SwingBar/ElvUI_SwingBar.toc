@@ -1,0 +1,8 @@
+## Interface: 30300
+## Author: Bunny
+## Version: 1.0
+## Title: |cffA11313E|r|cffC4C4C4lvUI|r |cffA11313S|r|cffC4C4C4wingBar|r
+## RequiredDeps: ElvUI
+
+oUF_Swing.lua
+ElvUI_SwingBar.lua
