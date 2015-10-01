@@ -8,7 +8,29 @@ P.unitframe.units.player.swingbar = {
 	enable = false,
 	width = 270,
 	height = 18,
-	color = { r = .31, g = .31, b = .31 }
+	color = { r = .31, g = .31, b = .31 },
+	
+	text = {
+		enable = true,
+		position = "CENTER",
+		xOffset = 0,
+		yOffset = 0,
+		font = "ElvUI Pixel",
+		fontSize = 10,
+		fontOutline = "MONOCHROMEOUTLINE"
+	}
+};
+
+local positionValues = {
+	TOPLEFT = "TOPLEFT",
+	LEFT = "LEFT",
+	BOTTOMLEFT = "BOTTOMLEFT",
+	RIGHT = "RIGHT",
+	TOPRIGHT = "TOPRIGHT",
+	BOTTOMRIGHT = "BOTTOMRIGHT",
+	CENTER = "CENTER",
+	TOP = "TOP",
+	BOTTOM = "BOTTOM",
 };
 
 local function getOptions()
@@ -50,6 +72,66 @@ local function getOptions()
 					t.r, t.g, t.b = r, g, b
 					UF:CreateAndUpdateUF("player");
 				end,	
+			},
+			textGroup = {
+				order = 300,
+				type = "group",
+				name = L["Text"],
+				guiInline = true,
+				get = function(info) return E.db.unitframe.units.player.swingbar.text[ info[#info] ] end,
+				set = function(info, value) E.db.unitframe.units.player.swingbar.text[ info[#info] ] = value; UF:CreateAndUpdateUF("player"); end,
+				args = {
+					enable = {
+						type = "toggle",
+						order = 1,
+						name = L["Enable"],
+					},
+					position = {
+						type = "select",
+						order = 2,
+						name = L["Text Position"],
+						values = positionValues,
+					},	
+					xOffset = {
+						order = 3,
+						type = "range",
+						name = L["Text xOffset"],
+						desc = L["Offset position for text."],
+						min = -300, max = 300, step = 1,
+					},		
+					yOffset = {
+						order = 4,
+						type = "range",
+						name = L["Text yOffset"],
+						desc = L["Offset position for text."],
+						min = -300, max = 300, step = 1
+					},
+					font = {
+						type = "select", dialogControl = "LSM30_Font",
+						order = 5,
+						name = L["Font"],
+						values = AceGUIWidgetLSMlists.font,
+					},
+					fontSize = {
+						order = 6,
+						name = L["Font Size"],
+						type = "range",
+						min = 6, max = 32, step = 1,
+					},
+					fontOutline = {
+						order = 7,
+						name = L["Font Outline"],
+						desc = L["Set the font outline."],
+						type = "select",
+						values = {
+							["NONE"] = L["None"],
+							["OUTLINE"] = "OUTLINE",
+							["MONOCHROME"] = (not E.isMacClient) and "MONOCHROME" or nil,
+							["MONOCHROMEOUTLINE"] = "MONOCROMEOUTLINE",
+							["THICKOUTLINE"] = "THICKOUTLINE"
+						}
+					}
+				}
 			}
 		}
 	}
@@ -61,6 +143,8 @@ function UF:Construct_Swingbar(frame)
 	
 	swingbar:SetClampedToScreen(true);
 	swingbar:CreateBackdrop("Default");
+	
+	swingbar.Text = swingbar:CreateFontString(nil, "OVERLAY");
 	
 	local holder = CreateFrame("Frame", nil, swingbar);
 	swingbar.Holder = holder;
@@ -89,6 +173,18 @@ function SB:Initialize()
 			swingbar.Holder:GetScript("OnSizeChanged")(swingbar.Holder);
 			
 			swingbar:SetStatusBarColor(db.swingbar.color.r, db.swingbar.color.g, db.swingbar.color.b);
+			
+			if(swingbar.Text) then
+				if(db.swingbar.text.enable) then
+					swingbar.Text:Show();
+					swingbar.Text:FontTemplate(UF.LSM:Fetch("font", db.swingbar.text.font), db.swingbar.text.fontSize, db.swingbar.text.fontOutline);
+					local x, y = self:GetPositionOffset(db.swingbar.text.position);
+					swingbar.Text:ClearAllPoints();
+					swingbar.Text:Point(db.swingbar.text.position, swingbar, db.swingbar.text.position, x + db.swingbar.text.xOffset, y + db.swingbar.text.yOffset);
+				else
+					swingbar.Text:Hide();
+				end
+			end
 			
 			if(db.swingbar.enable) then
 				frame:EnableElement("Swing");
