@@ -68,7 +68,7 @@ function UF:Construct_Swingbar(frame)
 	holder:Point("TOPRIGHT", frame, "BOTTOMRIGHT", 0, -36);
 	swingbar:Point("BOTTOMRIGHT", holder, "BOTTOMRIGHT", -E.Border, E.Border);
 	
-	E:CreateMover(holder, self:GetName().."CastbarMover", "Player SwingBar", nil, -6, nil, "ALL,SOLO");
+	E:CreateMover(holder, frame:GetName().."CastbarMover", "Player SwingBar", nil, -6, nil, "ALL,SOLO");
 	
 	return swingbar;
 end
