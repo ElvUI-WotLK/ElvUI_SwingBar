@@ -5,7 +5,7 @@ local SB = E:NewModule("SwingBar", "AceHook-3.0");
 local UF = E:GetModule("UnitFrames");
 
 P.unitframe.units.player.swingbar = {
-	enable = false,
+	enable = true,
 	width = 270,
 	height = 18,
 	color = { r = .31, g = .31, b = .31 },
