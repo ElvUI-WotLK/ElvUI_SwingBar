@@ -90,10 +90,11 @@ function SB:Initialize()
 			
 			swingbar:SetStatusBarColor(db.swingbar.color.r, db.swingbar.color.g, db.swingbar.color.b);
 			
-			if(db.swingbar.enable and not frame:IsElementEnabled("Swing")) then
+			if(db.swingbar.enable) then
 				frame:EnableElement("Swing");
-			elseif(not db.swingbar.enable and frame:IsElementEnabled("Swing")) then
+			elseif(not db.swingbar.enable) then
 				frame:DisableElement("Swing");
+				swingbar:Hide();
 			end
 		end);
 	end
