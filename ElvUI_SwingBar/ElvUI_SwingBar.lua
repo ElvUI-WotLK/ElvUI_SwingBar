@@ -1,21 +1,21 @@
 local addonName = ...;
-local E, L, V, P, G, _ = unpack(ElvUI);
+local E, L, V, P, G = unpack(ElvUI);
 local EP = LibStub("LibElvUIPlugin-1.0");
-local SB = E:NewModule("SwingBar", "AceHook-3.0");
+local SB = E:NewModule("SwingBar");
 local UF = E:GetModule("UnitFrames");
 
 P.unitframe.units.player.swingbar = {
 	enable = true,
 	width = 270,
 	height = 18,
-	color = { r = .31, g = .31, b = .31 },
+	color = {r = .31, g = .31, b = .31},
 	
 	text = {
 		enable = true,
 		position = "CENTER",
 		xOffset = 0,
 		yOffset = 0,
-		font = "ElvUI Pixel",
+		font = "Homespun",
 		fontSize = 10,
 		fontOutline = "MONOCHROMEOUTLINE"
 	}
@@ -140,60 +140,64 @@ end
 function UF:Construct_Swingbar(frame)
 	local swingbar = CreateFrame("StatusBar", nil, frame);
 	UF["statusbars"][swingbar] = true;
-	
+
 	swingbar:SetClampedToScreen(true);
 	swingbar:CreateBackdrop("Default");
-	
+
 	swingbar.Text = swingbar:CreateFontString(nil, "OVERLAY");
-	
+
 	local holder = CreateFrame("Frame", nil, swingbar);
 	swingbar.Holder = holder;
-	
+
 	holder:Point("TOPRIGHT", frame, "BOTTOMRIGHT", 0, -36);
 	swingbar:Point("BOTTOMRIGHT", holder, "BOTTOMRIGHT", -E.Border, E.Border);
-	
-	E:CreateMover(holder, frame:GetName().."SwingBarMover", "Player SwingBar", nil, -6, nil, "ALL,SOLO");
-	
+
+	E:CreateMover(holder, frame:GetName() .. "SwingBarMover", "Player SwingBar", nil, -6, nil, "ALL,SOLO");
+
 	return swingbar;
+end
+
+function UF:Configure_Swingbar(frame)
+	local db = frame.db;
+	local swingbar = frame.Swing;
+
+	swingbar:Width(db.swingbar.width - (E.Border * 2));
+	swingbar:Height(db.swingbar.height);
+	swingbar.Holder:Width(db.swingbar.width);
+	swingbar.Holder:Height(db.swingbar.height + (E.PixelMode and 2 or (E.Border * 2)));
+	if(swingbar.Holder:GetScript("OnSizeChanged")) then
+		swingbar.Holder:GetScript("OnSizeChanged")(swingbar.Holder);
+	end
+
+	swingbar:SetStatusBarColor(db.swingbar.color.r, db.swingbar.color.g, db.swingbar.color.b);
+
+	if(swingbar.Text) then
+		if(db.swingbar.text.enable) then
+			swingbar.Text:Show();
+			swingbar.Text:FontTemplate(UF.LSM:Fetch("font", db.swingbar.text.font), db.swingbar.text.fontSize, db.swingbar.text.fontOutline);
+			local x, y = self:GetPositionOffset(db.swingbar.text.position);
+			swingbar.Text:ClearAllPoints();
+			swingbar.Text:Point(db.swingbar.text.position, swingbar, db.swingbar.text.position, x + db.swingbar.text.xOffset, y + db.swingbar.text.yOffset);
+		else
+			swingbar.Text:Hide();
+		end
+	end
+
+	if(db.swingbar.enable) then
+		frame:EnableElement("Swing");
+	elseif(not db.swingbar.enable) then
+		frame:DisableElement("Swing");
+		swingbar:Hide();
+	end
 end
 
 function SB:Initialize()
 	EP:RegisterPlugin(addonName, getOptions);
-	
-	if(ElvUF_Player) then
-		ElvUF_Player.Swing = UF:Construct_Swingbar(ElvUF_Player);
-		
-		self:SecureHook(UF, "Update_PlayerFrame", function(self, frame, db)
-			local swingbar = frame.Swing;
-			
-			swingbar:Width(db.swingbar.width - (E.Border * 2));
-			swingbar:Height(db.swingbar.height);
-			swingbar.Holder:Width(db.swingbar.width);
-			swingbar.Holder:Height(db.swingbar.height + (E.PixelMode and 2 or (E.Border * 2)));
-			swingbar.Holder:GetScript("OnSizeChanged")(swingbar.Holder);
-			
-			swingbar:SetStatusBarColor(db.swingbar.color.r, db.swingbar.color.g, db.swingbar.color.b);
-			
-			if(swingbar.Text) then
-				if(db.swingbar.text.enable) then
-					swingbar.Text:Show();
-					swingbar.Text:FontTemplate(UF.LSM:Fetch("font", db.swingbar.text.font), db.swingbar.text.fontSize, db.swingbar.text.fontOutline);
-					local x, y = self:GetPositionOffset(db.swingbar.text.position);
-					swingbar.Text:ClearAllPoints();
-					swingbar.Text:Point(db.swingbar.text.position, swingbar, db.swingbar.text.position, x + db.swingbar.text.xOffset, y + db.swingbar.text.yOffset);
-				else
-					swingbar.Text:Hide();
-				end
-			end
-			
-			if(db.swingbar.enable) then
-				frame:EnableElement("Swing");
-			elseif(not db.swingbar.enable) then
-				frame:DisableElement("Swing");
-				swingbar:Hide();
-			end
-		end);
-	end
+
+	ElvUF_Player.Swing = UF:Construct_Swingbar(ElvUF_Player);
+	hooksecurefunc(UF, "Update_PlayerFrame", function(self, frame, db)
+		UF:Configure_Swingbar(frame);
+	end);
 end
 
 E:RegisterModule(SB:GetName());
