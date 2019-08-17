@@ -5,16 +5,16 @@ if not oUF then return end
 local unpack = unpack
 local find = string.find
 
-local GetInventoryItemLink = GetInventoryItemLink
+local GetInventoryItemID = GetInventoryItemID
 local GetSpellInfo = GetSpellInfo
 local GetTime = GetTime
 local UnitAttackSpeed = UnitAttackSpeed
 local UnitCastingInfo = UnitCastingInfo
 local UnitRangedDamage = UnitRangedDamage
 
-local MainhandID = GetInventoryItemLink("player", "MainHandSlot")
-local OffhandID = GetInventoryItemLink("player", "SecondaryHandSlot")
-local RangedID = GetInventoryItemLink("player", "RangedSlot")
+local MainhandID = GetInventoryItemID("player", 16)
+local OffhandID = GetInventoryItemID("player", 17)
+local RangedID = GetInventoryItemID("player", 18)
 
 local meleeing, rangeing, lasthit
 
@@ -102,8 +102,8 @@ local function MeleeChange(self, _, unit)
 
 	local element = self.Swing
 
-	local NewMainhandID = GetInventoryItemLink("player", "MainHandSlot")
-	local NewOffhandID = GetInventoryItemLink("player", "SecondaryHandSlot")
+	local NewMainhandID = GetInventoryItemID("player", 16)
+	local NewOffhandID = GetInventoryItemID("player", 17)
 
 	local now = GetTime()
 	local mhspeed, ohspeed = UnitAttackSpeed("player")
@@ -181,7 +181,7 @@ local function RangedChange(self, _, unit)
 	if not rangeing then return end
 
 	local element = self.Swing
-	local NewRangedID = GetInventoryItemLink("player", "RangedSlot")
+	local NewRangedID = GetInventoryItemID("player", 18)
 	local now = GetTime()
 	local speed = UnitRangedDamage("player")
 
