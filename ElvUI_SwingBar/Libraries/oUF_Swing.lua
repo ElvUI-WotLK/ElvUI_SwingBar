@@ -16,7 +16,7 @@ local MainhandID = GetInventoryItemID("player", 16)
 local OffhandID = GetInventoryItemID("player", 17)
 local RangedID = GetInventoryItemID("player", 18)
 
-local meleeing, rangeing, lasthit
+local melee, range, lastHit
 
 local function SwingStopped(element)
 	local bar = element.__owner
@@ -30,63 +30,59 @@ end
 
 local OnDurationUpdate
 do
-	local checkelapsed, slamelapsed, slamtime, now = 0, 0, 0
+	local checkElapsed, slamElapsed, slamTime, now = 0, 0, 0
 	local slam = GetSpellInfo(1464)
 
 	function OnDurationUpdate(self, elapsed)
 		now = GetTime()
 
-		if meleeing then
-			if checkelapsed > 0.02 then
-				if lasthit + self.speed + slamtime < now then
+		if melee then
+			if checkElapsed > 0.02 then
+				if lastHit + self.speed + slamTime < now then
 					self:Hide()
 					self:SetScript("OnUpdate", nil)
 					SwingStopped(self)
-					meleeing = false
-					rangeing = false
+					melee = false
+					range = false
 				end
 
-				checkelapsed = 0
+				checkElapsed = 0
 			else
-				checkelapsed = checkelapsed + elapsed
+				checkElapsed = checkElapsed + elapsed
 			end
 		end
 
 		local spell = UnitCastingInfo("player")
 
 		if slam == spell then
-			slamelapsed = slamelapsed + elapsed
-			slamtime = slamtime + elapsed
+			slamElapsed = slamElapsed + elapsed
+			slamTime = slamTime + elapsed
 		else
-			if slamelapsed ~= 0 then
-				self.min = self.min + slamelapsed
-				self.max = self.max + slamelapsed
+			if slamElapsed ~= 0 then
+				self.min = self.min + slamElapsed
+				self.max = self.max + slamElapsed
 				self:SetMinMaxValues(self.min, self.max)
-				slamelapsed = 0
+				slamElapsed = 0
 			end
 
 			if now > self.max then
-				if meleeing then
-					if lasthit then
+				if melee then
+					if lastHit then
 						self.min = self.max
 						self.max = self.max + self.speed
 						self:SetMinMaxValues(self.min, self.max)
-						slamtime = 0
+						slamTime = 0
 					end
 				else
 					self:Hide()
 					self:SetScript("OnUpdate", nil)
-					meleeing = false
-					rangeing = false
+					melee = false
+					range = false
 				end
 			else
 				self:SetValue(now)
 				if self.Text then
-					if self.__owner.OverrideText then
-						self.__owner.OverrideText(self, now)
-					else
-						self.Text:SetFormattedText("%.1f", self.max - now)
-					end
+					self.Text:SetFormattedText("%.1f", self.max - now)
 				end
 			end
 		end
@@ -95,7 +91,7 @@ end
 
 local function MeleeChange(self, _, unit)
 	if unit ~= "player" then return end
-	if not meleeing then return end
+	if not melee then return end
 
 	local element = self.Swing
 
@@ -141,7 +137,7 @@ local function MeleeChange(self, _, unit)
 			element.Offhand:SetScript("OnUpdate", nil)
 		end
 
-		lasthit = now
+		lastHit = now
 
 		MainhandID = NewMainhandID
 		OffhandID = NewOffhandID
@@ -175,7 +171,7 @@ end
 
 local function RangedChange(self, _, unit)
 	if unit ~= "player" then return end
-	if not rangeing then return end
+	if not range then return end
 
 	local element = self.Swing
 	local NewRangedID = GetInventoryItemID("player", 18)
@@ -207,8 +203,8 @@ local function Ranged(self, _, unit, spellName)
 
 	local element = self.Swing
 
-	meleeing = false
-	rangeing = true
+	melee = false
+	range = true
 
 	element:Show()
 
@@ -236,7 +232,7 @@ local function Melee(self, _, _, event, GUID, _, _, _, _, _, _, spellName)
 
 	local element = self.Swing
 
-	if not meleeing then
+	if not melee then
 		element:Show()
 
 		element.Twohand:Hide()
@@ -276,16 +272,16 @@ local function Melee(self, _, _, event, GUID, _, _, _, _, _, _, spellName)
 			element.Twohand:SetScript("OnUpdate", OnDurationUpdate)
 		end
 
-		meleeing = true
-		rangeing = false
+		melee = true
+		range = false
 	end
 
-	lasthit = GetTime()
+	lastHit = GetTime()
 end
 
 local function ParryHaste(self, _, _, event, _, _, _, _, tarGUID, _, missType)
 	if UnitGUID("player") ~= tarGUID then return end
-	if not meleeing then return end
+	if not melee then return end
 	if not find(event, "MISSED") then return end
 	if missType ~= "PARRY" then return end
 
@@ -335,8 +331,8 @@ end
 local function Ooc(self)
 	local element = self.Swing
 
-	meleeing = false
-	rangeing = false
+	melee = false
+	range = false
 
 	element:Hide()
 	element.Twohand:Hide()
