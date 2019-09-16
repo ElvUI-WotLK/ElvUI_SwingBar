@@ -30,10 +30,7 @@ end
 
 local OnDurationUpdate
 do
-	local checkelapsed = 0
-	local slamelapsed = 0
-	local slamtime = 0
-	local now
+	local checkelapsed, slamelapsed, slamtime, now = 0, 0, 0
 	local slam = GetSpellInfo(1464)
 
 	function OnDurationUpdate(self, elapsed)
@@ -106,32 +103,32 @@ local function MeleeChange(self, _, unit)
 	local NewOffhandID = GetInventoryItemID("player", 17)
 
 	local now = GetTime()
-	local mhspeed, ohspeed = UnitAttackSpeed("player")
+	local mainHandSpeed, offHandSpeed = UnitAttackSpeed("player")
 
 	if MainhandID ~= NewMainhandID or OffhandID ~= NewOffhandID then
-		if ohspeed then
+		if offHandSpeed then
 			element.Twohand:Hide()
 			element.Twohand:SetScript("OnUpdate", nil)
 
 			element.Mainhand.min = GetTime()
-			element.Mainhand.max = element.Mainhand.min + mhspeed
-			element.Mainhand.speed = mhspeed
+			element.Mainhand.max = element.Mainhand.min + mainHandSpeed
+			element.Mainhand.speed = mainHandSpeed
 
 			element.Mainhand:Show()
 			element.Mainhand:SetMinMaxValues(element.Mainhand.min, element.Mainhand.max)
 			element.Mainhand:SetScript("OnUpdate", OnDurationUpdate)
 
 			element.Offhand.min = GetTime()
-			element.Offhand.max = element.Offhand.min + ohspeed
-			element.Offhand.speed = ohspeed
+			element.Offhand.max = element.Offhand.min + offHandSpeed
+			element.Offhand.speed = offHandSpeed
 
 			element.Offhand:Show()
 			element.Offhand:SetMinMaxValues(element.Offhand.min, element.Mainhand.max)
 			element.Offhand:SetScript("OnUpdate", OnDurationUpdate)
 		else
 			element.Twohand.min = GetTime()
-			element.Twohand.max = element.Twohand.min + mhspeed
-			element.Twohand.speed = mhspeed
+			element.Twohand.max = element.Twohand.min + mainHandSpeed
+			element.Twohand.speed = mainHandSpeed
 
 			element.Twohand:Show()
 			element.Twohand:SetMinMaxValues(element.Twohand.min, element.Twohand.max)
@@ -149,28 +146,28 @@ local function MeleeChange(self, _, unit)
 		MainhandID = NewMainhandID
 		OffhandID = NewOffhandID
 	else
-		if ohspeed then
-			if element.Mainhand.speed ~= mhspeed then
+		if offHandSpeed then
+			if element.Mainhand.speed ~= mainHandSpeed then
 				local percentage = (element.Mainhand.max - now) / (element.Mainhand.speed)
-				element.Mainhand.min = now - mhspeed * (1 - percentage)
-				element.Mainhand.max = now + mhspeed * percentage
+				element.Mainhand.min = now - mainHandSpeed * (1 - percentage)
+				element.Mainhand.max = now + mainHandSpeed * percentage
 				element.Mainhand:SetMinMaxValues(element.Mainhand.min, element.Mainhand.max)
-				element.Mainhand.speed = mhspeed
+				element.Mainhand.speed = mainHandSpeed
 			end
-			if element.Offhand.speed ~= ohspeed then
+			if element.Offhand.speed ~= offHandSpeed then
 				local percentage = (element.Offhand.max - now) / (element.Offhand.speed)
-				element.Offhand.min = now - ohspeed * (1 - percentage)
-				element.Offhand.max = now + ohspeed * percentage
+				element.Offhand.min = now - offHandSpeed * (1 - percentage)
+				element.Offhand.max = now + offHandSpeed * percentage
 				element.Offhand:SetMinMaxValues(element.Offhand.min, element.Offhand.max)
-				element.Offhand.speed = ohspeed
+				element.Offhand.speed = offHandSpeed
 			end
 		else
-			if element.Twohand.speed ~= mhspeed then
+			if element.Twohand.speed ~= mainHandSpeed then
 				local percentage = (element.Twohand.max - now) / (element.Twohand.speed)
-				element.Twohand.min = now - mhspeed * (1 - percentage)
-				element.Twohand.max = now + mhspeed * percentage
+				element.Twohand.min = now - mainHandSpeed * (1 - percentage)
+				element.Twohand.max = now + mainHandSpeed * percentage
 				element.Twohand:SetMinMaxValues(element.Twohand.min, element.Twohand.max)
-				element.Twohand.speed = mhspeed
+				element.Twohand.speed = mainHandSpeed
 			end
 		end
 	end
@@ -182,8 +179,6 @@ local function RangedChange(self, _, unit)
 
 	local element = self.Swing
 	local NewRangedID = GetInventoryItemID("player", 18)
-	local now = GetTime()
-	local speed = UnitRangedDamage("player")
 
 	if RangedID ~= NewRangedID then
 		element.Twohand.speed = UnitRangedDamage(unit)
@@ -194,6 +189,9 @@ local function RangedChange(self, _, unit)
 		element.Twohand:SetMinMaxValues(element.Twohand.min, element.Twohand.max)
 		element.Twohand:SetScript("OnUpdate", OnDurationupdate)
 	else
+		local speed = UnitRangedDamage("player")
+		local now = GetTime()
+
 		if element.Twohand.speed ~= speed then
 			local percentage = (element.Twohand.max - GetTime()) / (element.Twohand.speed)
 			element.Twohand.min = now - speed * (1 - percentage)
@@ -242,35 +240,36 @@ local function Melee(self, _, _, event, GUID, _, _, _, _, _, _, spellName)
 		element:Show()
 
 		element.Twohand:Hide()
-		element.Mainhand:Hide()
-		element.Offhand:Hide()
-
 		element.Twohand:SetScript("OnUpdate", nil)
+
+		element.Mainhand:Hide()
 		element.Mainhand:SetScript("OnUpdate", nil)
+
+		element.Offhand:Hide()
 		element.Offhand:SetScript("OnUpdate", nil)
 
-		local mhspeed, ohspeed = UnitAttackSpeed("player")
+		local mainHandSpeed, offHandSpeed = UnitAttackSpeed("player")
 
-		if ohspeed then
+		if offHandSpeed then
 			element.Mainhand.min = GetTime()
-			element.Mainhand.max = element.Mainhand.min + mhspeed
-			element.Mainhand.speed = mhspeed
+			element.Mainhand.max = element.Mainhand.min + mainHandSpeed
+			element.Mainhand.speed = mainHandSpeed
 
 			element.Mainhand:Show()
 			element.Mainhand:SetMinMaxValues(element.Mainhand.min, element.Mainhand.max)
 			element.Mainhand:SetScript("OnUpdate", OnDurationUpdate)
 
 			element.Offhand.min = GetTime()
-			element.Offhand.max = element.Offhand.min + ohspeed
-			element.Offhand.speed = ohspeed
+			element.Offhand.max = element.Offhand.min + offHandSpeed
+			element.Offhand.speed = offHandSpeed
 
 			element.Offhand:Show()
 			element.Offhand:SetMinMaxValues(element.Offhand.min, element.Offhand.max)
 			element.Offhand:SetScript("OnUpdate", OnDurationUpdate)
 		else
 			element.Twohand.min = GetTime()
-			element.Twohand.max = element.Twohand.min + mhspeed
-			element.Twohand.speed = mhspeed
+			element.Twohand.max = element.Twohand.min + mainHandSpeed
+			element.Twohand.speed = mainHandSpeed
 
 			element.Twohand:Show()
 			element.Twohand:SetMinMaxValues(element.Twohand.min, element.Twohand.max)
@@ -291,10 +290,10 @@ local function ParryHaste(self, _, _, event, _, _, _, _, tarGUID, _, missType)
 	if missType ~= "PARRY" then return end
 
 	local element = self.Swing
-	local _, dualwield = UnitAttackSpeed("player")
+	local _, dualWield = UnitAttackSpeed("player")
 	local now = GetTime()
 
-	if dualwield then
+	if dualWield then
 		local percentage = (element.Mainhand.max - now) / element.Mainhand.speed
 
 		if percentage > 0.6 then
@@ -339,8 +338,6 @@ local function Ooc(self)
 	meleeing = false
 	rangeing = false
 
-	if not element.hideOoc then return end
-
 	element:Hide()
 	element.Twohand:Hide()
 	element.Mainhand:Hide()
@@ -351,102 +348,27 @@ local function Enable(self, unit)
 	local element = self.Swing
 
 	if element and unit == "player" then
-		local normTex = element.texture or [=[Interface\TargetingFrame\UI-StatusBar]=]
-		local bgTex = element.textureBG or [=[Interface\TargetingFrame\UI-StatusBar]=]
-		local r, g, b, a, r2, g2, b2, a2
+		for _, Bar in pairs({element.Twohand, element.Mainhand, element.Offhand}) do
+			Bar.__owner = element
 
-		if element.color then
-			r, g, b, a = unpack(element.color)
-		else
-			r, g, b, a = 1, 1, 1, 1
+			if Bar:IsObjectType("StatusBar") and not Bar:GetStatusBarTexture() then
+				Bar:SetStatusBarTexture([[Interface\TargetingFrame\UI-StatusBar]])
+			end
+
+			if Bar.Spark and Bar.Spark:IsObjectType("Texture") and not Bar.Spark:GetTexture() then
+				Bar.Spark:SetTexture([[Interface\CastingBar\UI-CastingBar-Spark]])
+			end
+
+			if Bar.Text then
+				Bar.Text:SetParent(Bar)
+			end
 		end
 
-		if element.colorBG then
-			r2, g2, b2, a2 = unpack(element.colorBG) 
-		else
-			r2, g2, b2, a2 = 0, 0, 0, 1
-		end
-
-		if not element.Twohand then
-			element.Twohand = CreateFrame("StatusBar", nil, element)
-			element.Twohand:SetPoint("TOPLEFT", element, "TOPLEFT", 0, 0)
-			element.Twohand:SetPoint("BOTTOMRIGHT", element, "BOTTOMRIGHT", 0, 0)
-			element.Twohand:SetStatusBarTexture(normTex)
-			element.Twohand:SetStatusBarColor(r, g, b, a)
-			element.Twohand:SetFrameLevel(20)
-			element.Twohand:Hide()
-
-			element.Twohand.bg = element.Twohand:CreateTexture(nil, "BACKGROUND")
-			element.Twohand.bg:SetAllPoints(element.Twohand)
-			element.Twohand.bg:SetTexture(bgTex)
-			element.Twohand.bg:SetVertexColor(r2, g2, b2, a2)
-		end
-		element.Twohand.__owner = element
-
-		if not element.Mainhand then
-			element.Mainhand = CreateFrame("StatusBar", nil, element)
-			element.Mainhand:SetPoint("TOPLEFT", element, "TOPLEFT", 0, 0)
-			element.Mainhand:SetPoint("BOTTOMRIGHT", element, "RIGHT", 0, 0)
-			element.Mainhand:SetStatusBarTexture(normTex)
-			element.Mainhand:SetStatusBarColor(r, g, b, a)
-			element.Mainhand:SetFrameLevel(20)
-			element.Mainhand:Hide()
-
-			element.Mainhand.bg = element.Mainhand:CreateTexture(nil, "BACKGROUND")
-			element.Mainhand.bg:SetAllPoints(element.Mainhand)
-			element.Mainhand.bg:SetTexture(bgTex)
-			element.Mainhand.bg:SetVertexColor(r2, g2, b2, a2)
-		end
-		element.Mainhand.__owner = element
-
-		if not element.Offhand then
-			element.Offhand = CreateFrame("StatusBar", nil, element)
-			element.Offhand:SetPoint("TOPLEFT", element, "LEFT", 0, 0)
-			element.Offhand:SetPoint("BOTTOMRIGHT", element, "BOTTOMRIGHT", 0, 0)
-			element.Offhand:SetStatusBarTexture(normTex)
-			element.Offhand:SetStatusBarColor(r, g, b, a)
-			element.Offhand:SetFrameLevel(20)
-			element.Offhand:Hide()
-
-			element.Offhand.bg = element.Offhand:CreateTexture(nil, "BACKGROUND")
-			element.Offhand.bg:SetAllPoints(element.Offhand)
-			element.Offhand.bg:SetTexture(bgTex)
-			element.Offhand.bg:SetVertexColor(r2, g2, b2, a2)
-		end
-		element.Offhand.__owner = element
-
-		if element.Text then
-			element.Twohand.Text = element.Text
-			element.Twohand.Text:SetParent(element.Twohand)
-		end
-
-		if element.TextMH then
-			element.Mainhand.Text = element.TextMH
-			element.Mainhand.Text:SetParent(element.Mainhand)
-		end
-
-		if element.TextOH then
-			element.Offhand.Text = element.TextOH
-			element.Offhand.Text:SetParent(element.Offhand)
-		end
-
-		if element.OverrideText then
-			element.Twohand.OverrideText = element.OverrideText
-			element.Mainhand.OverrideText = element.OverrideText
-			element.Offhand.OverrideText = element.OverrideText
-		end
-
-		if not element.disableRanged then
-			self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", Ranged)
---			self:RegisterEvent("UNIT_RANGEDDAMAGE", RangedChange)
-		end
-
-		if not element.disableMelee then
-			self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", Melee)
-			self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", ParryHaste)
-			self:RegisterEvent("UNIT_ATTACK_SPEED", MeleeChange)
-		end
-
+		self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED", Ranged)
+--		self:RegisterEvent("UNIT_RANGEDDAMAGE", RangedChange)
+		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", Melee)
+		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED", ParryHaste)
+		self:RegisterEvent("UNIT_ATTACK_SPEED", MeleeChange)
 		self:RegisterEvent("PLAYER_REGEN_ENABLED", Ooc)
 
 		return true
@@ -455,18 +377,13 @@ end
 
 local function Disable(self)
 	local element = self.Swing
+
 	if element then
-		if not element.disableRanged then
-			self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED", Ranged)
---			self:UnregisterEvent("UNIT_RANGEDDAMAGE", RangedChange)
-		end
-
-		if not element.disableMelee then
-			self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED", Melee)
-			self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED", ParryHaste)
-			self:UnregisterEvent("UNIT_ATTACK_SPEED", MeleeChange)
-		end
-
+		self:UnregisterEvent("UNIT_SPELLCAST_SUCCEEDED", Ranged)
+--		self:UnregisterEvent("UNIT_RANGEDDAMAGE", RangedChange)
+		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED", Melee)
+		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED", ParryHaste)
+		self:UnregisterEvent("UNIT_ATTACK_SPEED", MeleeChange)
 		self:UnregisterEvent("PLAYER_REGEN_ENABLED", Ooc)
 
 		element:Hide()

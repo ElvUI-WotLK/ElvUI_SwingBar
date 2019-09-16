@@ -4,15 +4,15 @@ local SB = E:GetModule("SwingBar")
 local UF = E:GetModule("UnitFrames")
 
 local positionValues = {
-	TOPLEFT = "TOPLEFT",
-	LEFT = "LEFT",
-	BOTTOMLEFT = "BOTTOMLEFT",
-	RIGHT = "RIGHT",
-	TOPRIGHT = "TOPRIGHT",
-	BOTTOMRIGHT = "BOTTOMRIGHT",
-	CENTER = "CENTER",
-	TOP = "TOP",
-	BOTTOM = "BOTTOM"
+	TOP = L["Top"],
+	LEFT = L["Left"],
+	RIGHT = L["Right"],
+	CENTER = L["Center"],
+	BOTTOM = L["Bottom"],
+	TOPLEFT = L["Top Left"],
+	TOPRIGHT = L["Top Right"],
+	BOTTOMLEFT = L["Bottom Left"],
+	BOTTOMRIGHT = L["Bottom Right"]
 }
 
 local function ColorizeSettingName(settingName)
@@ -99,8 +99,19 @@ function SB:InsertOptions()
 				min = 5, max = 85, step = 1,
 				disabled = function() return not E.db.unitframe.units.player.swingbar.enable end
 			},
-			color = {
+			spark = {
 				order = 7,
+				type = "toggle",
+				name = L["Spark"],
+				disabled = function() return not E.db.unitframe.units.player.swingbar.enable end
+			},
+			spacer2 = {
+				order = 8,
+				type = "description",
+				name = " "
+			},
+			color = {
+				order = 9,
 				type = "color",
 				name = L["COLOR"],
 				get = function(info)
@@ -115,8 +126,24 @@ function SB:InsertOptions()
 				end,
 				disabled = function() return not E.db.unitframe.units.player.swingbar.enable end
 			},
+			backdropColor = {
+				order = 10,
+				type = "color",
+				name = L["Backdrop Color"],
+				get = function(info)
+					local t = E.db.unitframe.units.player.swingbar[info[#info]]
+					local d = P.unitframe.units.player.swingbar[info[#info]]
+					return t.r, t.g, t.b, t.a, d.r, d.g, d.b
+				end,
+				set = function(info, r, g, b)
+					local t = E.db.unitframe.units.player.swingbar[info[#info]]
+					t.r, t.g, t.b = r, g, b
+					UF:CreateAndUpdateUF("player")
+				end,
+				disabled = function() return not E.db.unitframe.units.player.swingbar.enable end
+			},
 			textGroup = {
-				order = 8,
+				order = 11,
 				type = "group",
 				name = L["Text"],
 				guiInline = true,
@@ -144,16 +171,14 @@ function SB:InsertOptions()
 					xOffset = {
 						order = 4,
 						type = "range",
-						name = L["Text xOffset"],
-						desc = L["Offset position for text."],
+						name = L["X-Offset"],
 						min = -300, max = 300, step = 1,
 						disabled = function() return not E.db.unitframe.units.player.swingbar.text.enable or not E.db.unitframe.units.player.swingbar.enable end
 					},
 					yOffset = {
 						order = 5,
 						type = "range",
-						name = L["Text yOffset"],
-						desc = L["Offset position for text."],
+						name = L["Y-Offset"],
 						min = -300, max = 300, step = 1,
 						disabled = function() return not E.db.unitframe.units.player.swingbar.text.enable or not E.db.unitframe.units.player.swingbar.enable end
 					},
