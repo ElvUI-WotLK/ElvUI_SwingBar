@@ -76,7 +76,6 @@ function SB:InsertOptions()
 				order = 3,
 				type = "execute",
 				name = L["Restore Defaults"],
-				buttonElvUI = true,
 				func = function() E:CopyTable(E.db.unitframe.units.player.swingbar, P.unitframe.units.player.swingbar) E:ResetMovers(L["Player SwingBar"]) UF:CreateAndUpdateUF("player") end,
 				disabled = function() return not E.db.unitframe.units.player.swingbar.enable end
 			},
