@@ -1,6 +1,6 @@
 ## Interface: 30300
 ## Author: Bunny
-## Version: 1.2
+## Version: 1.3
 ## Title: |cff1784d1E|r|cffe5e3e3lvUI|r |cff1784d1S|r|cffe5e3e3wing|r |cff1784d1B|r|cffe5e3e3ar|r
 ## RequiredDeps: ElvUI
 
