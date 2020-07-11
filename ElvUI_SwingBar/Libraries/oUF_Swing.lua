@@ -15,7 +15,7 @@ local mainHandID = GetInventoryItemID("player", 16)
 local offHandID = GetInventoryItemID("player", 17)
 local rangedID = GetInventoryItemID("player", 18)
 
-local meleeing, rangeing, lastHit
+local meleeing, ranging, lastHit
 
 local function SwingStopped(element)
 	local bar = element.__owner
@@ -42,7 +42,7 @@ do
 					self:SetScript("OnUpdate", nil)
 					SwingStopped(self)
 
-					meleeing, rangeing = false, false
+					meleeing, ranging = false, false
 				end
 
 				checkElapsed = 0
@@ -78,7 +78,7 @@ do
 					self:Hide()
 					self:SetScript("OnUpdate", nil)
 
-					meleeing, rangeing = false, false
+					meleeing, ranging = false, false
 				end
 			else
 				self:SetValue(now)
@@ -170,7 +170,7 @@ end
 
 local function RangedChange(self, _, unit)
 	if unit ~= "player" then return end
-	if not rangeing then return end
+	if not ranging then return end
 
 	local element = self.Swing
 	local now = GetTime()
@@ -219,12 +219,12 @@ local function Ranged(self, _, unit, spellName)
 	element.Offhand:Hide()
 	element.Offhand:SetScript("OnUpdate", nil)
 
-	meleeing, rangeing = false, true
+	meleeing, ranging = false, true
 end
 
-local function Melee(self, _, _, subevent, GUID)
+local function Melee(self, _, _, subEvent, GUID)
 	if UnitGUID("player") ~= GUID then return end
-	if not find(subevent, "SWING") then return end
+	if not find(subEvent, "SWING") then return end
 
 	local element = self.Swing
 	local now = GetTime()
@@ -265,7 +265,7 @@ local function Melee(self, _, _, subevent, GUID)
 			element.Twohand:SetScript("OnUpdate", OnDurationUpdate)
 		end
 
-		meleeing, rangeing = true, false
+		meleeing, ranging = true, false
 	end
 
 	lastHit = now
@@ -329,14 +329,14 @@ local function NoCombatHide(self)
 
 	element:Hide()
 
-	meleeing, rangeing = false, false
+	meleeing, ranging = false, false
 end
 
 local function ToggleTestMode(self)
 	local element = self.Swing
 
 	if element.testMode then
-		if not (meleeing or rangeing) then
+		if not (meleeing or ranging) then
 			for _, Bar in pairs({element.Twohand, element.Mainhand, element.Offhand}) do
 				Bar:Hide()
 			end
