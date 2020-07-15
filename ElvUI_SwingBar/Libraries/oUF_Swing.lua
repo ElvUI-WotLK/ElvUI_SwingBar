@@ -59,7 +59,7 @@ do
 				self.min = self.min + slamElapsed
 				self.max = self.max + slamElapsed
 
-				self:SetMinMaxValues(self.min, self.max)
+				self:SetMinMaxValues(self.min - now, self.max - now)
 
 				slamElapsed = 0
 			end
@@ -70,7 +70,7 @@ do
 						self.min = self.max
 						self.max = self.max + self.speed
 
-						self:SetMinMaxValues(self.min, self.max)
+						self:SetMinMaxValues(self.min - now, self.max - now)
 
 						slamTime = 0
 					end
@@ -81,7 +81,7 @@ do
 					meleeing, ranging = false, false
 				end
 			else
-				self:SetValue(now)
+				self:SetValue(now - self.min)
 
 				if self.Text then
 					self.Text:SetFormattedText("%.1f", self.max - now)
@@ -111,7 +111,7 @@ local function MeleeChange(self, _, unit)
 			element.Mainhand.speed = mainSpeed
 
 			element.Mainhand:Show()
-			element.Mainhand:SetMinMaxValues(element.Mainhand.min, element.Mainhand.max)
+			element.Mainhand:SetMinMaxValues(element.Mainhand.min - now, element.Mainhand.max - now)
 			element.Mainhand:SetScript("OnUpdate", OnDurationUpdate)
 
 			element.Offhand.min = GetTime()
@@ -119,7 +119,7 @@ local function MeleeChange(self, _, unit)
 			element.Offhand.speed = offSpeed
 
 			element.Offhand:Show()
-			element.Offhand:SetMinMaxValues(element.Offhand.min, element.Mainhand.max)
+			element.Offhand:SetMinMaxValues(element.Offhand.min - now, element.Mainhand.max - now)
 			element.Offhand:SetScript("OnUpdate", OnDurationUpdate)
 		else
 			element.Twohand.min = GetTime()
@@ -127,7 +127,7 @@ local function MeleeChange(self, _, unit)
 			element.Twohand.speed = mainSpeed
 
 			element.Twohand:Show()
-			element.Twohand:SetMinMaxValues(element.Twohand.min, element.Twohand.max)
+			element.Twohand:SetMinMaxValues(element.Twohand.min - now, element.Twohand.max - now)
 			element.Twohand:SetScript("OnUpdate", OnDurationUpdate)
 
 			element.Mainhand:Hide()
@@ -146,14 +146,14 @@ local function MeleeChange(self, _, unit)
 				local percentage = (element.Mainhand.max - now) / (element.Mainhand.speed)
 				element.Mainhand.min = now - mainSpeed * (1 - percentage)
 				element.Mainhand.max = now + mainSpeed * percentage
-				element.Mainhand:SetMinMaxValues(element.Mainhand.min, element.Mainhand.max)
+				element.Mainhand:SetMinMaxValues(element.Mainhand.min - now, element.Mainhand.max - now)
 				element.Mainhand.speed = mainSpeed
 			end
 			if element.Offhand.speed ~= offSpeed then
 				local percentage = (element.Offhand.max - now) / (element.Offhand.speed)
 				element.Offhand.min = now - offSpeed * (1 - percentage)
 				element.Offhand.max = now + offSpeed * percentage
-				element.Offhand:SetMinMaxValues(element.Offhand.min, element.Offhand.max)
+				element.Offhand:SetMinMaxValues(element.Offhand.min - now, element.Offhand.max - now)
 				element.Offhand.speed = offSpeed
 			end
 		else
@@ -161,7 +161,7 @@ local function MeleeChange(self, _, unit)
 				local percentage = (element.Twohand.max - now) / (element.Twohand.speed)
 				element.Twohand.min = now - mainSpeed * (1 - percentage)
 				element.Twohand.max = now + mainSpeed * percentage
-				element.Twohand:SetMinMaxValues(element.Twohand.min, element.Twohand.max)
+				element.Twohand:SetMinMaxValues(element.Twohand.min - now, element.Twohand.max - now)
 				element.Twohand.speed = mainSpeed
 			end
 		end
@@ -183,7 +183,7 @@ local function RangedChange(self, _, unit)
 		element.Twohand.max = element.Twohand.min + element.Twohand.speed
 
 		element.Twohand:Show()
-		element.Twohand:SetMinMaxValues(element.Twohand.min, element.Twohand.max)
+		element.Twohand:SetMinMaxValues(element.Twohand.min - now, element.Twohand.max - now)
 		element.Twohand:SetScript("OnUpdate", OnDurationUpdate)
 
 		rangedID = newRangedID
@@ -202,6 +202,7 @@ local function Ranged(self, _, unit, spellName)
 	if spellName ~= GetSpellInfo(75) and spellName ~= GetSpellInfo(5019) then return end
 
 	local element = self.Swing
+	local now = GetTime()
 
 	element:Show()
 
@@ -210,7 +211,7 @@ local function Ranged(self, _, unit, spellName)
 	element.Twohand.max = element.Twohand.min + element.Twohand.speed
 
 	element.Twohand:Show()
-	element.Twohand:SetMinMaxValues(element.Twohand.min, element.Twohand.max)
+	element.Twohand:SetMinMaxValues(element.Twohand.min - now, element.Twohand.max - now)
 	element.Twohand:SetScript("OnUpdate", OnDurationUpdate)
 
 	element.Mainhand:Hide()
@@ -248,7 +249,7 @@ local function Melee(self, _, _, event, GUID, _, _, _, _, _, _, spellName)
 			element.Mainhand.speed = mainSpeed
 
 			element.Mainhand:Show()
-			element.Mainhand:SetMinMaxValues(element.Mainhand.min, element.Mainhand.max)
+			element.Mainhand:SetMinMaxValues(element.Mainhand.min - now, element.Mainhand.max - now)
 			element.Mainhand:SetScript("OnUpdate", OnDurationUpdate)
 
 			element.Offhand.min = now
@@ -256,7 +257,7 @@ local function Melee(self, _, _, event, GUID, _, _, _, _, _, _, spellName)
 			element.Offhand.speed = offSpeed
 
 			element.Offhand:Show()
-			element.Offhand:SetMinMaxValues(element.Offhand.min, element.Offhand.max)
+			element.Offhand:SetMinMaxValues(element.Offhand.min - now, element.Offhand.max - now)
 			element.Offhand:SetScript("OnUpdate", OnDurationUpdate)
 		else
 			element.Twohand.min = now
@@ -264,7 +265,7 @@ local function Melee(self, _, _, event, GUID, _, _, _, _, _, _, spellName)
 			element.Twohand.speed = mainSpeed
 
 			element.Twohand:Show()
-			element.Twohand:SetMinMaxValues(element.Twohand.min, element.Twohand.max)
+			element.Twohand:SetMinMaxValues(element.Twohand.min - now, element.Twohand.max - now)
 			element.Twohand:SetScript("OnUpdate", OnDurationUpdate)
 		end
 
@@ -290,11 +291,11 @@ local function ParryHaste(self, _, _, subEvent, _, _, _, _, _, tarGUID, _, missT
 		if percentage > 0.6 then
 			element.Mainhand.max = now + element.Mainhand.speed * 0.6
 			element.Mainhand.min = now - (element.Mainhand.max - now) * percentage / (1 - percentage)
-			element.Mainhand:SetMinMaxValues(element.Mainhand.min, element.Mainhand.max)
+			element.Mainhand:SetMinMaxValues(element.Mainhand.min - now, element.Mainhand.max - now)
 		elseif percentage > 0.2 then
 			element.Mainhand.max = now + element.Mainhand.speed * 0.2
 			element.Mainhand.min = now - (element.Mainhand.max - now) * percentage / (1 - percentage)
-			element.Mainhand:SetMinMaxValues(element.Mainhand.min, element.Mainhand.max)
+			element.Mainhand:SetMinMaxValues(element.Mainhand.min - now, element.Mainhand.max - now)
 		end
 
 		percentage = (element.Offhand.max - now) / element.Offhand.speed
@@ -302,11 +303,11 @@ local function ParryHaste(self, _, _, subEvent, _, _, _, _, _, tarGUID, _, missT
 		if percentage > 0.6 then
 			element.Offhand.max = now + element.Offhand.speed * 0.6
 			element.Offhand.min = now - (element.Offhand.max - now) * percentage / (1 - percentage)
-			element.Offhand:SetMinMaxValues(element.Offhand.min, element.Offhand.max)
+			element.Offhand:SetMinMaxValues(element.Offhand.min - now, element.Offhand.max - now)
 		elseif percentage > 0.2 then
 			element.Offhand.max = now + element.Offhand.speed * 0.2
 			element.Offhand.min = now - (element.Offhand.max - now) * percentage / (1 - percentage)
-			element.Offhand:SetMinMaxValues(element.Offhand.min, element.Offhand.max)
+			element.Offhand:SetMinMaxValues(element.Offhand.min - now, element.Offhand.max - now)
 		end
 	else
 		local percentage = (element.Twohand.max - now) / element.Twohand.speed
@@ -314,11 +315,11 @@ local function ParryHaste(self, _, _, subEvent, _, _, _, _, _, tarGUID, _, missT
 		if percentage > 0.6 then
 			element.Twohand.max = now + element.Twohand.speed * 0.6
 			element.Twohand.min = now - (element.Twohand.max - now) * percentage / (1 - percentage)
-			element.Twohand:SetMinMaxValues(element.Twohand.min, element.Twohand.max)
+			element.Twohand:SetMinMaxValues(element.Twohand.min - now, element.Twohand.max - now)
 		elseif percentage > 0.2 then
 			element.Twohand.max = now + element.Twohand.speed * 0.2
 			element.Twohand.min = now - (element.Twohand.max - now) * percentage / (1 - percentage)
-			element.Twohand:SetMinMaxValues(element.Twohand.min, element.Twohand.max)
+			element.Twohand:SetMinMaxValues(element.Twohand.min - now, element.Twohand.max - now)
 		end
 	end
 end
