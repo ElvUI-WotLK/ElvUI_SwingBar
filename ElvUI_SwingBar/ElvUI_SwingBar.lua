@@ -24,12 +24,7 @@ function UF:Construct_Swingbar(frame)
 	swingbar.Twohand:Point("BOTTOMRIGHT", swingbar, "BOTTOMRIGHT", 0, 0)
 
 	swingbar.Mainhand = CreateFrame("StatusBar", frameName.."SwingBar_Mainhand", swingbar)
-	swingbar.Mainhand:Point("TOPLEFT", swingbar, "TOPLEFT", 0, 0)
-	swingbar.Mainhand:Point("BOTTOMRIGHT", swingbar, "RIGHT", 0, E.Border)
-
 	swingbar.Offhand = CreateFrame("StatusBar", frameName.."SwingBar_Offhand", swingbar)
-	swingbar.Offhand:Point("TOPLEFT", swingbar, "LEFT", 0, 0)
-	swingbar.Offhand:Point("BOTTOMRIGHT", swingbar, "BOTTOMRIGHT", 0, 0)
 
 	for _, Bar in pairs({swingbar.Twohand, swingbar.Mainhand, swingbar.Offhand}) do
 		UF.statusbars[Bar] = true
@@ -63,10 +58,27 @@ function UF:Configure_Swingbar(frame)
 		swingbar:Show()
 		swingbar:Size(db.width - (E.Border * 2), db.height)
 
-		swingbar.Holder:Size(db.width, db.height + (E.PixelMode and 2 or (E.Border * 2)))
+		swingbar.Holder:Size(db.width, db.height + E.Border * 2)
 
 		if swingbar.Holder:GetScript("OnSizeChanged") then
 			swingbar.Holder:GetScript("OnSizeChanged")(swingbar.Holder)
+		end
+
+		swingbar.Mainhand:ClearAllPoints()
+		swingbar.Offhand:ClearAllPoints()
+
+		if db.verticalOrientation then
+			swingbar.Mainhand:Point("TOPLEFT", swingbar, "TOPLEFT")
+			swingbar.Mainhand:Point("BOTTOMRIGHT", swingbar, "BOTTOM", -db.spacing, 0)
+
+			swingbar.Offhand:Point("TOPLEFT", swingbar, "TOP", db.spacing + E.Border, 0)
+			swingbar.Offhand:Point("BOTTOMRIGHT", swingbar, "BOTTOMRIGHT")
+		else
+			swingbar.Mainhand:Point("TOPLEFT", swingbar, "TOPLEFT")
+			swingbar.Mainhand:Point("BOTTOMRIGHT", swingbar, "RIGHT", 0, db.spacing)
+
+			swingbar.Offhand:Point("TOPLEFT", swingbar, "LEFT", 0, -db.spacing - E.Border)
+			swingbar.Offhand:Point("BOTTOMRIGHT", swingbar, "BOTTOMRIGHT")
 		end
 
 		for _, Bar in pairs({swingbar.Twohand, swingbar.Mainhand, swingbar.Offhand}) do
@@ -76,13 +88,31 @@ function UF:Configure_Swingbar(frame)
 			color = db.backdropColor
 			Bar.bg:SetVertexColor(color.r * 0.35, color.g * 0.35, color.b * 0.35)
 
+			Bar:SetOrientation(db.verticalOrientation and "VERTICAL" or "HORIZONTAL")
+
 			if db.spark then
-				if Bar == swingbar.Twohand then
-					Bar.Spark:Height(db.height * 2)
+				if db.verticalOrientation then
+					if Bar == swingbar.Twohand then
+						Bar.Spark:Width(db.width * 1.8)
+					else
+						Bar.Spark:Width(db.width)
+					end
+					Bar.Spark:Height(10)
 				else
-					Bar.Spark:Height(db.height * 1.2)
+					if Bar == swingbar.Twohand then
+						Bar.Spark:Height(db.height * 1.8)
+					else
+						Bar.Spark:Height(db.height / 1.2)
+					end
+					Bar.Spark:Width(20)
 				end
-				Bar.Spark:Point("CENTER", Bar:GetStatusBarTexture(), "RIGHT", 0, 0)
+
+				Bar.Spark:ClearAllPoints()
+				if db.verticalOrientation then
+					Bar.Spark:Point("CENTER", Bar:GetStatusBarTexture(), "TOP")
+				else
+					Bar.Spark:Point("CENTER", Bar:GetStatusBarTexture(), "RIGHT")
+				end
 				Bar.Spark:Show()
 			else
 				Bar.Spark:Hide()

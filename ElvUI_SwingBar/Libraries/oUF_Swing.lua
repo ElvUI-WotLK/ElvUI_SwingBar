@@ -222,9 +222,12 @@ local function Ranged(self, _, unit, spellName)
 	meleeing, ranging = false, true
 end
 
-local function Melee(self, _, _, subEvent, GUID)
+local function Melee(self, _, _, event, GUID, _, _, _, _, _, _, spellName)
 	if UnitGUID("player") ~= GUID then return end
-	if not find(subEvent, "SWING") then return end
+	if not find(event, "SWING") and not find(event, "SPELL_CAST_SUCCESS") then return end
+	if find(event, "SPELL_CAST_SUCCESS") then
+		if spellName ~= GetSpellInfo(30324) and spellName ~= GetSpellInfo(25231) and spellName ~= GetSpellInfo(27014) and spellName ~= GetSpellInfo(26996) then return end
+	end
 
 	local element = self.Swing
 	local now = GetTime()
